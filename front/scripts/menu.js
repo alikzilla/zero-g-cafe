@@ -1,9 +1,7 @@
-import { MenuItem } from "../models/menu-item";
-import { Review } from "../models/review";
-import { connectToDatabase } from "./database";
-
+// Menu functionality
 const menuItems = [
   {
+    id: 1,
     title: "Cosmic Caviar",
     price: 24,
     description:
@@ -13,6 +11,7 @@ const menuItems = [
     tags: ["Signature", "Gourmet"],
   },
   {
+    id: 2,
     title: "Asteroid Arancini",
     price: 16,
     description:
@@ -23,6 +22,7 @@ const menuItems = [
     tags: ["Vegetarian", "Crunchy"],
   },
   {
+    id: 3,
     title: "Nebula Noodles",
     price: 28,
     description:
@@ -33,6 +33,7 @@ const menuItems = [
     tags: ["Seafood", "Interactive"],
   },
   {
+    id: 4,
     title: "Black Hole Burger",
     price: 22,
     description:
@@ -43,6 +44,7 @@ const menuItems = [
     tags: ["Signature", "Hearty"],
   },
   {
+    id: 5,
     title: "Martian Mushroom Risotto",
     price: 24,
     description:
@@ -53,6 +55,7 @@ const menuItems = [
     tags: ["Vegetarian", "Creamy"],
   },
   {
+    id: 6,
     title: "Milky Way Martini",
     price: 18,
     description:
@@ -63,6 +66,7 @@ const menuItems = [
     tags: ["Signature", "Instagrammable"],
   },
   {
+    id: 7,
     title: "Zero Gravity Float",
     price: 14,
     description:
@@ -73,6 +77,7 @@ const menuItems = [
     tags: ["Non-alcoholic", "Interactive"],
   },
   {
+    id: 8,
     title: "Cosmic Crunch",
     price: 16,
     description:
@@ -84,55 +89,61 @@ const menuItems = [
   },
 ];
 
-const reviews = [
-  {
-    name: "Sarah Johnson",
-    avatar: "https://randomuser.me/api/portraits/women/44.jpg",
-    rating: 5,
-    text: "Absolutely out of this world! The VR experience while dining was something I'll never forget. The Black Hole Burger was delicious and the Milky Way Martini was as beautiful as it was tasty.",
-  },
-  {
-    name: "Michael Chen",
-    avatar: "https://randomuser.me/api/portraits/men/32.jpg",
-    rating: 4,
-    text: "Incredible atmosphere and innovative menu. The Cosmic Crunch dessert was a showstopper - watching it crack open to reveal the galaxy inside was magical. Service was a bit slow but understandable given the unique concept.",
-  },
-  {
-    name: "Emily Rodriguez",
-    avatar: "https://randomuser.me/api/portraits/women/68.jpg",
-    rating: 5,
-    text: "Best birthday dinner ever! The staff surprised me with a special 'Happy Birthday' message that appeared to float above our table. The Nebula Noodles were delicious and so fun to eat with the color-changing glitter.",
-  },
-  {
-    name: "David Kim",
-    avatar: "https://randomuser.me/api/portraits/men/75.jpg",
-    rating: 5,
-    text: "As a space enthusiast, this was my dream dining experience. The VR Mars exploration paired perfectly with the Martian Mushroom Risotto. Can't wait to come back and try their new experiences!",
-  },
-  {
-    name: "Jessica Williams",
-    avatar: "https://randomuser.me/api/portraits/women/25.jpg",
-    rating: 4,
-    text: "Such a unique concept executed beautifully. The Asteroid Arancini were delicious and the Zero Gravity Float drink was so fun to watch. The only downside was the price, but it's worth it for a special occasion.",
-  },
-];
+const menuContainer = document.querySelector(".menu-items");
+const categoryButtons = document.querySelectorAll(".category-btn");
 
-const seedDatabase = async () => {
-  try {
-    await connectToDatabase();
+// Display all menu items initially
+displayMenuItems(menuItems);
 
-    await MenuItem.deleteMany({});
-    await Review.deleteMany({});
+// Category filter functionality
+categoryButtons.forEach((button) => {
+  button.addEventListener("click", function () {
+    // Remove active class from all buttons
+    categoryButtons.forEach((btn) => btn.classList.remove("active"));
+    // Add active class to clicked button
+    this.classList.add("active");
 
-    await MenuItem.insertMany(menuItems);
-    await Review.insertMany(reviews);
+    const category = this.getAttribute("data-category");
+    if (category === "all") {
+      displayMenuItems(menuItems);
+    } else {
+      const filteredItems = menuItems.filter(
+        (item) => item.category === category
+      );
+      displayMenuItems(filteredItems);
+    }
+  });
+});
 
-    console.log("Database seeded successfully");
-    process.exit(0);
-  } catch (error) {
-    console.error("Error seeding database:", error);
-    process.exit(1);
-  }
-};
+function displayMenuItems(items) {
+  menuContainer.innerHTML = "";
 
-seedDatabase();
+  items.forEach((item) => {
+    const menuItem = document.createElement("div");
+    menuItem.className = "menu-item";
+    menuItem.setAttribute("data-category", item.category);
+
+    menuItem.innerHTML = `
+                  <div class="menu-item-img">
+                      <img src="${item.image}" alt="${item.title}">
+                  </div>
+                  <div class="menu-item-content">
+                      <div class="menu-item-title">
+                          <h3>${item.title}</h3>
+                          <span>$${item.price}</span>
+                      </div>
+                      <div class="menu-item-desc">${item.description}</div>
+                      <div class="menu-item-tags">
+                          ${item.tags
+                            .map(
+                              (tag) =>
+                                `<span class="menu-item-tag">${tag}</span>`
+                            )
+                            .join("")}
+                      </div>
+                  </div>
+              `;
+
+    menuContainer.appendChild(menuItem);
+  });
+}
